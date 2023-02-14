@@ -16,11 +16,3 @@ export const ImageGallery = ({ gallery }) => {
     </ul>
   );
 };
-
-ImageGallery.propTypes = {
-  gallery: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-    })
-  ),
-};

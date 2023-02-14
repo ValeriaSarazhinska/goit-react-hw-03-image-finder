@@ -1,13 +1,10 @@
 import { Component } from 'react';
-import axios from 'axios';
 import { Searchbar } from './Searchbar';
 import { ImageGallery } from './ImageGallery';
 import { Button } from './Button';
 import { Notify } from 'notiflix';
 import { ColorRing } from 'react-loader-spinner';
-
-const key = '32755907-d4f027b877d70172cdb830bb2';
-const URL = `https://pixabay.com/api/?key=${key}&q=`;
+import { getPhotos } from './Api';
 
 export class App extends Component {
   state = {
@@ -15,20 +12,11 @@ export class App extends Component {
     name: '',
     page: 1,
     loading: false,
-  };
-  getPhotos = async () => {
-    try {
-      const responce = await axios.get(
-        `${URL}${this.state.name}&page=${this.state.page}&image_type=photo&orientation=horizontal&per_page=12`
-      );
-      return responce.data;
-    } catch (error) {
-      console.log(error);
-    }
+    totalHits: 0,
   };
 
   handleFormSubmit = name => {
-    this.setState({ name, page: 1 });
+    this.setState({ name, gallery: [], page: 1 });
   };
 
   loadMore = () => {
@@ -36,35 +24,39 @@ export class App extends Component {
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.name !== this.state.name ||
-      prevState.page !== this.state.page
-    ) {
-      this.setState({ loading: true });
-      const { hits, totalHits } = await this.getPhotos();
+    const { name, page, gallery } = this.state;
+    if (prevState.name !== name || prevState.page !== page) {
+      try {
+        this.setState({ loading: true });
+        const { hits, totalHits } = await getPhotos(name, page);
 
-      if (Math.ceil(totalHits / 12) <= this.state.page) {
-        this.setState({ gallery: hits, loading: false });
-        return Notify.failure(
-          "We're sorry, but you've reached the end of search results."
-        );
-      }
-      if (!hits.length) {
-        return Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      }
-      Notify.info(`Hooray! We found ${totalHits} images.`);
+        if (!hits.length) {
+          return Notify.failure(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
+        }
 
-      this.setState({ gallery: hits, loading: false });
+        this.setState(prevState => ({
+          gallery: [...prevState.gallery, ...hits],
+          totalHits,
+        }));
+      } catch (error) {
+        Notify.failure('Something went wrong');
+      } finally {
+        this.setState({ loading: false });
+      }
     }
   }
 
   render() {
-    const { gallery, loading } = this.state;
+    const { gallery, loading, totalHits } = this.state;
     return (
       <div className="app">
         <Searchbar onSubmit={this.handleFormSubmit} />
+        {gallery.length && <ImageGallery gallery={gallery} />}
+        {!loading && gallery.length && totalHits !== gallery.length && (
+          <Button loadMore={this.loadMore} />
+        )}
         <ColorRing
           visible={loading}
           height="180"
@@ -73,8 +65,6 @@ export class App extends Component {
           wrapperClass="blocks-wrapper"
           colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
         />
-        <ImageGallery gallery={gallery} />
-        {gallery.length === 12 && <Button loadMore={this.loadMore} />}
       </div>
     );
   }
