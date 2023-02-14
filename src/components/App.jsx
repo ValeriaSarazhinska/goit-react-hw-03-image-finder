@@ -4,7 +4,7 @@ import { Searchbar } from './Searchbar';
 import { ImageGallery } from './ImageGallery';
 import { Button } from './Button';
 import { Notify } from 'notiflix';
-import { Audio, ColorRing } from 'react-loader-spinner';
+import { ColorRing } from 'react-loader-spinner';
 
 const key = '32755907-d4f027b877d70172cdb830bb2';
 const URL = `https://pixabay.com/api/?key=${key}&q=`;
