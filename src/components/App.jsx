@@ -24,7 +24,7 @@ export class App extends Component {
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    const { name, page, gallery } = this.state;
+    const { name, page } = this.state;
     if (prevState.name !== name || prevState.page !== page) {
       try {
         this.setState({ loading: true });
