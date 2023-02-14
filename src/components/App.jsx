@@ -53,8 +53,8 @@ export class App extends Component {
     return (
       <div className="app">
         <Searchbar onSubmit={this.handleFormSubmit} />
-        {gallery.length && <ImageGallery gallery={gallery} />}
-        {!loading && gallery.length && totalHits !== gallery.length && (
+        {!!gallery.length && <ImageGallery gallery={gallery} />}
+        {!loading && !!gallery.length && totalHits !== gallery.length && (
           <Button loadMore={this.loadMore} />
         )}
         <ColorRing
