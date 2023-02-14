@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { Notify } from 'notiflix';
 
 export class Searchbar extends Component {
   state = {
@@ -11,7 +12,7 @@ export class Searchbar extends Component {
   handleSubmit = event => {
     event.preventDefault();
     if (this.state.name.trim() === '') {
-      alert('Введіть назву запиту');
+      Notify.failure('Enter a query name.');
       return;
     }
     this.props.onSubmit(this.state.name);
